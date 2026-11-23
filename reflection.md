@@ -1,0 +1,13 @@
+# Project Reflection (approximately 400 words)
+
+Building the Extension Request Sorter helped me understand how an AI feature should be separated from ordinary program logic. At first, it may seem easiest to ask an LLM to read a student request and decide whether an extension should be granted. However, the project specification makes an important distinction: the LLM extracts information, while Python applies the department's policy. This separation makes the program easier to test and keeps the final decision with faculty.
+
+One important learning was structured output. A natural-language answer can contain extra explanations or inconsistent wording, so I used a JSON format with four fields: course, days, reason and summary. The program parses the response and checks that the expected keys and data types are present. I also learned that receiving valid JSON does not automatically mean the information is correct. For example, a model might return a course code that is not part of the semester's course list. Python therefore checks the code against courses.csv and confirms that the student actually wrote it in the request.
+
+The days field required special attention. A request saying that an assignment can be submitted on Monday does not state how many days are requested. The program must not calculate or guess a duration from a date or weekday. It accepts only a number of days explicitly written by the student. This showed me why deterministic fact checks are necessary even when an LLM is used.
+
+Privacy was another important lesson. Student requests can contain personal or health information. Instead of trusting the model's summary, the program creates a short neutral summary using the checked course, number of days and reason category. The results file does not contain the original request. The original text is included only in the review queue for faculty, while the HOD summary contains aggregate counts and no request text.
+
+I also learned to plan for API failures. The program checks the model response, retries once and then uses a conservative local fallback. This makes the program more resilient, although the fallback is limited and cannot understand every sentence. The evaluation and red-team cases help reveal these limitations.
+
+The most important limitation is that software cannot verify whether a student's explanation is true or whether supporting evidence is genuine. Faculty must review such cases and make the final decision. Overall, this project taught me that useful AI engineering is not just about calling an API. It is about validation, privacy, testing, clear responsibility and knowing when a human must make the decision.
